@@ -56,6 +56,8 @@ class ProgramArgument
 
 
 // TODO: multiple triggers
+// TODO: fix error messages
+// TODO: conversion to double, bool
 class ProgramArguments
 {
 
