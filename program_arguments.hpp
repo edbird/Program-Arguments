@@ -58,6 +58,9 @@ class ProgramArgument
 // TODO: multiple triggers
 // TODO: fix error messages
 // TODO: conversion to double, bool
+// TODO: error message to be printed when argument used incorrectly
+// (this is a sub part of the help message)
+// TODO: program usage message (part of the help message)
 class ProgramArguments
 {
 
