@@ -150,10 +150,13 @@ class ProgramArguments
     // trigger goes with which name?
     void Print(std::ostream& output_stream = std::cout)
     {
+        output_stream << "*** Program Arguments ***\n";
         NameIterator_t it{_name_map_.begin()};
-        for(; it != _name_map_.end(); ++ it)
+        for(; it != _name_map_.end(); )
         {
-            output_stream << it->first << " " << /*it->second.GetName() << " " <<*/ it->second->GetValue() << " " << it->second->GetDefaultValue() << std::endl;
+            output_stream << "Name: " << it->first << ", Value: " << /*it->second.GetName() << " " <<*/ it->second->GetValue() << ", Default: " << it->second->GetDefaultValue();
+            if(++ it != _name_map_.end()) output_stream << "\n";
+            else output_stream << std::endl;
         }
 
     }
