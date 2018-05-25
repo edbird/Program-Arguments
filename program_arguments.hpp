@@ -21,17 +21,24 @@ class ProgramArgument
         //: _name_{name}
         /*,*/: _default_string_{default_string}
         , _value_string_{default_string}
+        , _was_value_provided_{false}
     {
     }
 
     void SetValue(const std::string& value_string)
     {
+        _was_value_provided_ = true;
         _value_string_ = value_string;
     }
 
     std::string GetValue() const
     {
         return _value_string_;
+    }
+
+    bool GetWasProvided() const
+    {
+        return _was_value_provided_;
     }
 
     /*
@@ -52,6 +59,9 @@ class ProgramArgument
     std::string _default_string_;
     std::string _value_string_;
 
+    // if ProgramArguments::Process() sets the value, then this is set
+    bool _was_value_provided_;
+
 };
 
 
@@ -64,6 +74,24 @@ class ProgramArguments
 
 
     public:
+
+    bool WasProvided(const std::string& name, std::ostream& error_stream = std::cerr) const
+    {
+        // search for name
+        NameConstIterator_t name_it{_name_map_.find(name)};
+        if(name_it != _name_map_.end())
+        {
+            
+            // name found
+            return name_it->second->GetWasProvided();
+
+        }
+        else
+        {
+            error_stream << error_name_not_found(name) << std::endl;
+            throw "error name not found";
+        }
+    }
 
     std::string Get(const std::string& name, std::ostream& error_stream = std::cerr) const
     {
