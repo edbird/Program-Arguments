@@ -71,6 +71,21 @@ class ProgramArgument
 // TODO: error message to be printed when argument used incorrectly
 // (this is a sub part of the help message)
 // TODO: program usage message (part of the help message)
+// TODO: does not work in the case where a program has 2 argument schemes
+// example: range of values to execute algorithm:
+// --epsilon VALUE
+// or
+// --epsilon-min VALUE --epsilon-max VALUE --epsilon-num VALUE
+// or
+// --epsilon-file FILENAME
+// different prog behaviour required for each of these 3 options
+// perhaps more than one can be specified simultantiously, or more than one set
+// at once could be
+// eg
+// --epsilon VALUE1 --epsilon VALUE2 --epsilon VALUE3
+// there is no flag to state if arg was provided (default value is for a
+// different purpose)
+// there is no ability to have multiple sets of args (vector of values)
 class ProgramArguments
 {
 
