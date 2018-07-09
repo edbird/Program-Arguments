@@ -133,6 +133,8 @@ class ProgramArguments
         }
     }
 
+    // TODO: I think value can be set multiple times?
+    // but multiple values are not accounted for in the ProgramArgument class
     void Process(int argc, char* argv[], std::ostream& error_stream = std::cerr)
     {
 
