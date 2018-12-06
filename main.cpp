@@ -13,10 +13,11 @@ int main(int argc, char* argv[])
 
     // new argument processing class
     ProgramArguments pa;
-    pa.Add("filename", "--filename", "NewElectronNtuplizerExe_Int_ManDB_output.root");
-    pa.Add("epsilon", "--epsilon", "0.0");
-    pa.Add("batch_mode", "--batch-mode", "false");
-    pa.Add("help", "--help", "false");
+    //pa.Add("filename", "--filename", "NewElectronNtuplizerExe_Int_ManDB_output.root");
+    //pa.Add("epsilon", "--epsilon", "0.0");
+    //pa.Add("batch_mode", "--batch-mode", "false");
+    //pa.Add("help", "--help", "false");
+    pa.Add("multi", "--multi", std::vector<std::string>{"one", "two"});
     pa.Print();
     pa.Process(argc, argv);
 
@@ -108,10 +109,11 @@ int main(int argc, char* argv[])
     }
 
     // process gathered argument data
-    arg_filename = pa.Get("filename");
+    arg_filename = pa.Get("filename").at(0); // TODO
     filename = arg_filename;
     //std::string filename_default(arg_default_filename); // required for later if test
-    std::string filename_default(pa.GetDefault("filename")); // required for later if test
+    std::string filename_default(pa.GetDefault("filename").at(0)); // required for later if test
+    // TODO
     bool gen_weight_enable{false};
     //if(arg_filename != filename_default)
     if(filename != filename_default)
@@ -120,7 +122,8 @@ int main(int argc, char* argv[])
     }
     // TODO: check filename exists!
 
-    arg_epsilon_31 = pa.Get("epsilon");
+    // TODO
+    arg_epsilon_31 = pa.Get("epsilon").at(0);
     epsilon_31 = std::stod(arg_epsilon_31);
     // todo: check valid
     if(0.0 <= epsilon_31 && epsilon_31 <= 0.8)
@@ -133,7 +136,8 @@ int main(int argc, char* argv[])
         throw "invalid epsilon_31 value";
     }
 
-    arg_batch_mode = pa.Get("batch_mode");
+    // TODO
+    arg_batch_mode = pa.Get("batch_mode").at(0);
     if(arg_batch_mode == std::string("true"))
     {
         batch_mode = true;
@@ -145,7 +149,7 @@ int main(int argc, char* argv[])
         std::cout << "[ INFO ] : Batch mode: " << batch_mode_enable_string << std::endl;
     }
 
-    arg_help = pa.Get("help");
+    arg_help = pa.Get("help").at(0); // TODO
     if(arg_help == std::string("true"))
     {
         // print help

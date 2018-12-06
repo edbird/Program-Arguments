@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 #include <map>
+#include <vector>
 
 
 // TODO: do not need to store the argument NAME
@@ -19,19 +20,46 @@ class ProgramArgument
 
     ProgramArgument(const std::string& name, const std::string& default_string)
         //: _name_{name}
+        /*,*/: _default_string_{std::vector<std::string>{default_string}}
+        , _value_string_{std::vector<std::string>{default_string}}
+        , _was_value_provided_{false}
+    {
+        std::cout << "ctr1" << std::endl;
+    }
+    
+    ProgramArgument(const std::string& name, const std::vector<std::string>& default_string)
+        //: _name_{name}
         /*,*/: _default_string_{default_string}
         , _value_string_{default_string}
         , _was_value_provided_{false}
     {
+        std::cout << "ctr2" << std::endl;
+    }
+
+    void Clear()
+    {
+        _value_string_.clear();
+    }
+
+    void SetValue(const std::vector<std::string>& value)
+    {
+        _was_value_provided_ = true;
+        _value_string_ = value;
     }
 
     void SetValue(const std::string& value_string)
     {
         _was_value_provided_ = true;
-        _value_string_ = value_string;
+        _value_string_ = {value_string};
     }
 
-    std::string GetValue() const
+    void AddValue(const std::string& value_string)
+    {
+        _was_value_provided_ = true;
+        _value_string_.push_back(value_string);
+    }
+
+    std::vector<std::string> GetValue() const
     {
         return _value_string_;
     }
@@ -48,7 +76,7 @@ class ProgramArgument
     }
     */
 
-    std::string GetDefaultValue() const
+    std::vector<std::string> GetDefaultValue() const
     {
         return _default_string_;
     }
@@ -56,8 +84,8 @@ class ProgramArgument
     private:
 
     //std::string _name_;
-    std::string _default_string_;
-    std::string _value_string_;
+    std::vector<std::string> _default_string_;
+    std::vector<std::string> _value_string_;
 
     // if ProgramArguments::Process() sets the value, then this is set
     bool _was_value_provided_;
@@ -96,7 +124,7 @@ class ProgramArguments
         }
     }
 
-    std::string Get(const std::string& name, std::ostream& error_stream = std::cerr) const
+    std::vector<std::string> Get(const std::string& name, std::ostream& error_stream = std::cerr) const
     {
         // search for name
         NameConstIterator_t name_it{_name_map_.find(name)};
@@ -114,7 +142,7 @@ class ProgramArguments
         }
     }
 
-    std::string GetDefault(const std::string& name, std::ostream& error_stream = std::cerr) const
+    std::vector<std::string> GetDefault(const std::string& name, std::ostream& error_stream = std::cerr) const
     {
         
         // search for name
@@ -150,9 +178,14 @@ class ProgramArguments
                 // trigger found
                 if(++ ix < argc)
                 {
-                    // current value corresponding to arg
-                    std::string value(argv[ix]);
-                    trigger_it->second->SetValue(value);
+                    trigger_it->second->SetValue(argv[ix]);
+                    while(++ ix < argc &&
+                          _trigger_map_.find(std::string(argv[ix])) == _trigger_map_.end())
+                         // this checks to ensure next argument is not another arg trigger
+                    {
+                        // current value corresponding to arg
+                        trigger_it->second->AddValue(argv[ix]);
+                    }
                 }
                 else
                 {
@@ -182,7 +215,24 @@ class ProgramArguments
         NameIterator_t it{_name_map_.begin()};
         for(; it != _name_map_.end(); )
         {
-            output_stream << "Name: " << it->first << ", Value: " << /*it->second.GetName() << " " <<*/ it->second->GetValue() << ", Default: " << it->second->GetDefaultValue();
+            //output_stream << "Name: " << it->first << ", Value: " << /*it->second.GetName() << " " <<*/ it->second->GetValue() << ", Default: " << it->second->GetDefaultValue();
+            output_stream << "Name: " << it->first << ", Value: ";
+            
+            std::cout << it->second->GetValue().size() << std::endl;
+
+            std::vector<std::string>::const_iterator x{it->second->GetValue().cbegin()};
+            for(; x != it->second->GetValue().cend(); )
+            {
+                output_stream << *x;
+                if(++ x != it->second->GetValue().cend())
+                {
+                    output_stream << " ";
+                }
+            }
+            output_stream << ", Default: ";
+            for(auto x : it->second->GetDefaultValue())
+                output_stream << x;
+            
             if(++ it != _name_map_.end()) output_stream << "\n";
             else output_stream << std::endl;
         }
@@ -193,6 +243,36 @@ class ProgramArguments
     // NOTE: changed arg_name -> arg_key
     void Add(const std::string& arg_name, const std::string& arg_trigger, const std::string& arg_default_string, std::ostream& error_stream = std::cerr)
     {
+        std::cout << "Add1" << std::endl;
+
+        // check name and trigger are not used
+
+        NameIterator_t it_name{_name_map_.find(arg_name)};
+        if(it_name != _name_map_.end())
+        {
+            // error: name exists
+            error_stream << error_name_exists(arg_name) << std::endl;
+            throw "error name exists";
+        }
+
+        TriggerIterator_t it_trigger{_trigger_map_.find(arg_trigger)};
+        if(it_trigger != _trigger_map_.end())
+        {
+            // error: trigger exists
+            error_stream << error_trigger_exists(arg_trigger) << std::endl;
+            throw "error trigger exists";
+        }
+
+        std::shared_ptr<ProgramArgument> program_argument_p(new ProgramArgument(arg_name, arg_default_string));
+        _trigger_map_[arg_trigger] = program_argument_p;
+        _name_map_[arg_name] = program_argument_p;
+
+    }
+
+
+    void Add(const std::string& arg_name, const std::string& arg_trigger, const std::vector<std::string>& arg_default_string, std::ostream& error_stream = std::cerr)
+    {
+        std::cout << "Add2" << std::endl;
 
         // check name and trigger are not used
 
